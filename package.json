@@ -1,0 +1,12 @@
+{
+  "name": "@codexporer.io/expo-device",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "peerDependencies": {
+    "expo-device": "*",
+    "react-sweet-state": "*",
+    "expo-screen-orientation": "*",
+    "react-magnetic-di": "*",
+    "@codexporer.io/react-test-utils": "*"
+  }
+}
