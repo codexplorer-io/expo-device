@@ -8,30 +8,35 @@ const { Orientation } = ScreenOrientation;
 const isLandscape = screenOrientation => screenOrientation === Orientation.LANDSCAPE_LEFT ||
     screenOrientation === Orientation.LANDSCAPE_RIGHT;
 
-const setScreenOrientation = screenOrientation => ({ setState }) => {
-    setState({
-        screenOrientation,
-        isLandscape: isLandscape(screenOrientation)
-    });
-};
-
 export const Store = createStore({
     initialState: {
         screenOrientation: undefined,
         isLandscape: undefined
     },
     actions: {
-        initialize: () => async ({ dispatch }) => {
+        initialize: ({ setDefaultScreenOrientation } = {}) => async ({ setState }) => {
             let screenOrientation = Orientation.PORTRAIT_DOWN;
             try {
                 screenOrientation = await ScreenOrientation.getOrientationAsync();
                 // eslint-disable-next-line no-empty
             } catch { }
 
-            dispatch(setScreenOrientation(screenOrientation));
+            setState({
+                screenOrientation,
+                isLandscape: isLandscape(screenOrientation),
+                setDefaultScreenOrientation: setDefaultScreenOrientation ?? Promise.resolve()
+            });
         },
-        setScreenOrientation,
-        unlockScreenOrientation: () => () => ScreenOrientation.unlockAsync()
+        setDefaultScreenOrientation: () => ({
+            getState
+        }) => getState().setDefaultScreenOrientation(),
+        lockScreenOrientation: ({
+            orientationLock
+        } = {}) => () => ScreenOrientation.lockAsync(
+            orientationLock ?? ScreenOrientation.OrientationLock.DEFAULT
+        ),
+        unlockScreenOrientation: () => () => ScreenOrientation.unlockAsync(),
+        setState: state => ({ setState }) => setState(state)
     },
     name: 'ScreenOrientation'
 });
@@ -43,17 +48,20 @@ export const useScreenOrientationActions = createHook(Store, { selector: null })
 export const useScreenOrientationChangeListener = () => {
     di(useEffect, useScreenOrientationActions);
 
-    const [, { setScreenOrientation }] = useScreenOrientationActions();
+    const [, { setState }] = useScreenOrientationActions();
 
     useEffect(() => {
         const subscription = ScreenOrientation.addOrientationChangeListener(
             ({ orientationInfo }) => {
-                setScreenOrientation(orientationInfo.orientation);
+                setState({
+                    screenOrientation: orientationInfo.orientation,
+                    isLandscape: isLandscape(orientationInfo.orientation)
+                });
             }
         );
 
         return () => {
             ScreenOrientation.removeOrientationChangeListener(subscription);
         };
-    }, [setScreenOrientation]);
+    }, [setState]);
 };
