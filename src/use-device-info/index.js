@@ -18,7 +18,8 @@ export const Store = createStore({
 
             setState({
                 isPhone: deviceType === DeviceType.PHONE,
-                isTablet: deviceType === DeviceType.TABLET
+                isTablet: deviceType === DeviceType.TABLET,
+                modelName: Device.modelName
             });
         }
     },
