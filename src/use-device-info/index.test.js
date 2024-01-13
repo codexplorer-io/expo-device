@@ -12,7 +12,8 @@ const { DeviceType } = Device;
 
 jest.mock('expo-device', () => ({
     ...jest.requireActual('expo-device'),
-    getDeviceTypeAsync: jest.fn()
+    getDeviceTypeAsync: jest.fn(),
+    modelName: 'modelNameMock'
 }));
 
 describe('Device info', () => {
@@ -65,7 +66,8 @@ describe('Device info', () => {
             expect(setState).toHaveBeenCalledTimes(1);
             expect(setState).toHaveBeenNthCalledWith(1, {
                 isPhone: true,
-                isTablet: false
+                isTablet: false,
+                modelName: 'modelNameMock'
             });
         });
 
@@ -80,7 +82,8 @@ describe('Device info', () => {
             expect(setState).toHaveBeenCalledTimes(1);
             expect(setState).toHaveBeenNthCalledWith(1, {
                 isPhone: false,
-                isTablet: true
+                isTablet: true,
+                modelName: 'modelNameMock'
             });
         });
 
@@ -95,7 +98,8 @@ describe('Device info', () => {
             expect(setState).toHaveBeenCalledTimes(1);
             expect(setState).toHaveBeenNthCalledWith(1, {
                 isPhone: false,
-                isTablet: false
+                isTablet: false,
+                modelName: 'modelNameMock'
             });
         });
 
@@ -108,7 +112,8 @@ describe('Device info', () => {
             expect(setState).toHaveBeenCalledTimes(1);
             expect(setState).toHaveBeenNthCalledWith(1, {
                 isPhone: false,
-                isTablet: false
+                isTablet: false,
+                modelName: 'modelNameMock'
             });
         });
     });
