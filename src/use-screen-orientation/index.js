@@ -1,14 +1,13 @@
 import { useEffect } from 'react';
 import { createStore, createHook } from 'react-sweet-state';
 import * as ScreenOrientation from 'expo-screen-orientation';
-import { di } from 'react-magnetic-di';
 
 const { Orientation } = ScreenOrientation;
 
 const isLandscape = screenOrientation => screenOrientation === Orientation.LANDSCAPE_LEFT ||
     screenOrientation === Orientation.LANDSCAPE_RIGHT;
 
-export const Store = createStore({
+const Store = createStore({
     initialState: {
         screenOrientation: undefined,
         isLandscape: undefined
@@ -46,8 +45,6 @@ export const useScreenOrientation = createHook(Store);
 export const useScreenOrientationActions = createHook(Store, { selector: null });
 
 export const useScreenOrientationChangeListener = () => {
-    di(useEffect, useScreenOrientationActions);
-
     const [, { setState }] = useScreenOrientationActions();
 
     useEffect(() => {

@@ -3,7 +3,7 @@ import * as Device from 'expo-device';
 
 const { DeviceType } = Device;
 
-export const Store = createStore({
+const Store = createStore({
     initialState: {
         isPhone: undefined,
         isTablet: undefined
