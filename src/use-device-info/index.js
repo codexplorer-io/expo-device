@@ -6,7 +6,8 @@ const { DeviceType } = Device;
 const Store = createStore({
     initialState: {
         isPhone: undefined,
-        isTablet: undefined
+        isTablet: undefined,
+        modelName: undefined
     },
     actions: {
         initialize: () => async ({ setState }) => {
