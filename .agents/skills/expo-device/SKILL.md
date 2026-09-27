@@ -6,7 +6,9 @@ description: Instructions for using @codexporer.io/expo-device for OS identifica
 # `@codexporer.io/expo-device` Skill
 
 ## Overview
-`@codexporer.io/expo-device` provides device classification (phone vs tablet), OS helper utilities, and screen orientation listeners powered by `react-sweet-state`.
+`@codexporer.io/expo-device` provides device classification (phone vs tablet), OS helper utilities, and screen orientation listeners powered by `react-sweet-state` for React Native & Expo applications.
+
+---
 
 ## Primary Exports
 
@@ -21,23 +23,67 @@ import {
 } from '@codexporer.io/expo-device';
 ```
 
-## Key API Capabilities
+---
+
+## Initialization Pattern
+
+Always initialize device info at application startup (e.g. in `app/_layout.tsx` or `App.tsx`) before main screens mount:
+
+```typescript
+import React, { useEffect, useState } from 'react';
+import { useDeviceInfo } from '@codexporer.io/expo-device';
+
+export function RootInitializer() {
+  const [, { initialize: initializeDeviceInfo }] = useDeviceInfo();
+
+  useEffect(() => {
+    async function init() {
+      await initializeDeviceInfo();
+    }
+    init();
+  }, [initializeDeviceInfo]);
+
+  return null;
+}
+```
+
+---
+
+## Core Capabilities
 
 ### 1. `OS` Helper
-- `OS.isIOS()`: returns `true` if current platform is iOS.
-- `OS.isAndroid()`: returns `true` if current platform is Android.
-- `OS.version()`: returns platform OS version.
+Use `OS` methods instead of direct `Platform.OS` string comparisons:
+- `OS.isIOS()`: returns `boolean` indicating iOS platform.
+- `OS.isAndroid()`: returns `boolean` indicating Android platform.
+- `OS.version()`: returns system version string or number.
+
+```typescript
+if (OS.isIOS()) {
+  // iOS specific logic
+}
+```
 
 ### 2. `useDeviceInfo()` Hook
-- State object: `{ isTablet: boolean, isPhone: boolean }`
-- Action methods: `{ initialize: () => Promise<void> }`
+Returns a tuple `[state, actions]`:
+- `state.isTablet`: `boolean | undefined` — whether running on a tablet/iPad.
+- `state.isPhone`: `boolean | undefined` — whether running on a mobile phone.
+- `state.modelName`: `string | null | undefined` — device model name.
+- `actions.initialize()`: `() => Promise<void>` — initializes device detection.
+
+```typescript
+const [{ isTablet }] = useDeviceInfo();
+const numColumns = isTablet ? 3 : 1;
+```
 
 ### 3. Screen Orientation Hooks
-- `useScreenOrientation()`: Returns state `{ isLandscape: boolean, isPortrait: boolean, orientation: Orientation }`.
-- `useScreenOrientationChangeListener()`: Attaches active orientation change listeners.
+- **`useScreenOrientation()`**: Returns `[{ screenOrientation, isLandscape }, actions]`.
+- **`useScreenOrientationActions()`**: Returns `[null, actions]`.
+- **`useScreenOrientationChangeListener()`**: Attaches active orientation change listeners to automatically update state on device rotation.
 
-## Implementation Guidelines
+---
 
-1. **Initialization**: Always await `initialize()` during root app startup (`useEffect` in `App.tsx` or `app/_layout.tsx`) before rendering main screens.
-2. **Platform Guarding**: Use `OS.isAndroid()` or `OS.isIOS()` instead of inline `Platform.OS === 'android'` checks.
-3. **Adaptive UI & Tablet Layouts**: Use `isTablet` from `useDeviceInfo()` to compute responsive layout column counts, dialog max-widths, and padding.
+## Mandatory Guidelines
+
+1. **Root Initialization**: Always await `initializeDeviceInfo()` during app bootstrapping.
+2. **Platform Checks**: Prefer `OS.isAndroid()` or `OS.isIOS()` over raw `Platform.OS === '...'` checks.
+3. **Adaptive Layouts**: Use `isTablet` from `useDeviceInfo()` to compute responsive layout column counts, dialog max-widths, and padding.
