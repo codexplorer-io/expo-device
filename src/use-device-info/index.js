@@ -14,7 +14,6 @@ const Store = createStore({
             let deviceType;
             try {
                 deviceType = await Device.getDeviceTypeAsync();
-                // eslint-disable-next-line no-empty
             } catch { }
 
             setState({

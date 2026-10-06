@@ -17,7 +17,6 @@ const Store = createStore({
             let screenOrientation = Orientation.PORTRAIT_DOWN;
             try {
                 screenOrientation = await ScreenOrientation.getOrientationAsync();
-                // eslint-disable-next-line no-empty
             } catch { }
 
             setState({
