@@ -1,18 +1,27 @@
-# AGENTS.md - `@codexporer.io/expo-device` Instructions
+# AGENTS.md — `@codexporer.io/expo-device` Instructions
 
 ## Package Overview
-`@codexporer.io/expo-device` handles device hardware inspection (phone vs tablet), OS detection helpers (`OS`), and orientation state hooks (`useScreenOrientation`).
+`@codexporer.io/expo-device` handles device hardware inspection (phone vs tablet), platform OS detection helpers (`OS`), and screen orientation management hooks backed by `react-sweet-state`.
+
+## Peer Dependencies
+All peer dependencies must be installed in consuming projects:
+- `react`: `*`
+- `react-native`: `*`
+- `expo-device`: `*`
+- `expo-screen-orientation`: `*`
+- `react-sweet-state`: `*`
 
 ## Key Exports
-- `OS`: `isIOS()`, `isAndroid()`, `version()`
-- `useDeviceInfo()`: returns `[{ isTablet, isPhone }, { initialize }]`
-- `useDeviceInfoActions()`: returns actions object containing `{ initialize }`
-- `useScreenOrientation()`: returns `[{ isLandscape, isPortrait, orientation }, actions]`
-- `useScreenOrientationActions()`: returns actions for orientation store
-- `useScreenOrientationChangeListener()`: sets up orientation change subscriber
+- `OS`: Helper object with functions `isIOS(): boolean`, `isAndroid(): boolean`, and `version(): string | number` (maps to `Platform.Version`).
+- `useDeviceInfo()`: Hook returning `[{ isPhone, isTablet, modelName }, { initialize }]`.
+- `useDeviceInfoActions()`: Hook returning `[null, { initialize }]`.
+- `useScreenOrientation()`: Hook returning `[{ screenOrientation, isLandscape }, { initialize, setDefaultScreenOrientation, lockScreenOrientation, unlockScreenOrientation, setState }]`.
+- `useScreenOrientationActions()`: Hook returning `[null, ScreenOrientationActions]`.
+- `useScreenOrientationChangeListener()`: Hook subscribing to `ScreenOrientation.addOrientationChangeListener` to sync rotation updates to the store.
 
 ## Critical Guidelines for AI Agents
-- Call `initialize()` via `useDeviceInfoActions()` or `useDeviceInfo()` at application boot to determine tablet vs phone form factor.
-- Use `OS.isAndroid()` or `OS.isIOS()` for platform checks.
-- Use `isTablet` from `useDeviceInfo()` to drive responsive grid, column count, and tablet layout adaptations.
-- Use `useScreenOrientationChangeListener()` at root to automatically keep orientation state updated during rotation.
+- **`OS` Helper are Methods**: Always invoke `OS.isIOS()` and `OS.isAndroid()` as functions (e.g. `OS.isIOS()`, not `OS.isIOS`).
+- **Screen Orientation Properties**: The state holds `isLandscape: boolean | undefined` and `screenOrientation: Orientation | undefined`. There is **NO `isPortrait`** property; check `!isLandscape` for portrait orientation.
+- **Bootstrapping**: Call `initialize()` via `useDeviceInfoActions()` during application bootstrap so `isTablet`, `isPhone`, and `modelName` are populated.
+- **Orientation Listener**: Mount `useScreenOrientationChangeListener()` once at root to automatically keep orientation state updated during device rotations.
+- **Action Dispatching**: When a component only needs to trigger orientation locks or initialization without needing re-renders on state changes, use `useDeviceInfoActions()` or `useScreenOrientationActions()`.

@@ -4,9 +4,10 @@
   "main": "src/index.js",
   "types": "src/index.d.ts",
   "peerDependencies": {
+    "react": "*",
+    "react-native": "*",
     "expo-device": "*",
-    "react-sweet-state": "*",
     "expo-screen-orientation": "*",
-    "deprecated-react-native-prop-types": "*"
+    "react-sweet-state": "*"
   }
 }

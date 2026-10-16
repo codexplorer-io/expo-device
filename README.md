@@ -2,18 +2,26 @@
 
 Hardware inspection, device type classification (phone vs tablet), OS detection helpers, and screen orientation management for React Native and Expo applications.
 
-## Installation & Peer Dependencies
+---
+
+## Peer Dependencies
+
+All peer dependencies must be installed in consuming projects:
+- `react`: `*`
+- `react-native`: `*`
+- `expo-device`: `*`
+- `expo-screen-orientation`: `*`
+- `react-sweet-state`: `*`
+
+---
+
+## Installation
 
 ```bash
 yarn add @codexporer.io/expo-device
 ```
 
-Peer dependencies:
-- `react` (`*`)
-- `react-native` (`*`)
-- `react-sweet-state` (`*`)
-- `expo-device` (`*`)
-- `expo-screen-orientation` (`*`)
+---
 
 ## Quick Start
 
@@ -75,6 +83,8 @@ export function ResponsiveView() {
 }
 ```
 
+---
+
 ## API Reference
 
 ### `OS` Helper Object
@@ -83,7 +93,7 @@ export function ResponsiveView() {
 | :--- | :--- | :--- |
 | `OS.isIOS()` | `boolean` | Returns `true` if current operating system is iOS |
 | `OS.isAndroid()` | `boolean` | Returns `true` if current operating system is Android |
-| `OS.version()` | `string \| number` | Returns OS version identifier |
+| `OS.version()` | `string \| number` | Returns OS version identifier (`Platform.Version`) |
 
 ### `useDeviceInfo()`
 Returns `[DeviceInfoState, DeviceInfoActions]`.
@@ -100,7 +110,7 @@ Returns `[DeviceInfoState, DeviceInfoActions]`.
 
 | Action | Signature | Description |
 | :--- | :--- | :--- |
-| `initialize` | `() => Promise<void>` | Inspects hardware via `expo-device` and updates state |
+| `initialize` | `() => Promise<void>` | Inspects hardware via `expo-device` and updates store state |
 
 ### `useScreenOrientation()`
 Returns `[ScreenOrientationState, ScreenOrientationActions]`.
@@ -116,16 +126,21 @@ Returns `[ScreenOrientationState, ScreenOrientationActions]`.
 
 | Action | Signature | Description |
 | :--- | :--- | :--- |
-| `initialize` | `(options?) => Promise<void>` | Initializes orientation store and reads initial orientation |
-| `lockScreenOrientation` | `(options?) => Promise<void>` | Locks device to specified orientation lock |
+| `initialize` | `(options?: { setDefaultScreenOrientation?: Promise<void> }) => Promise<void>` | Initializes orientation store and reads current orientation |
+| `lockScreenOrientation` | `(options?: { orientationLock?: ScreenOrientation.OrientationLock }) => Promise<void>` | Locks device to specified orientation lock |
 | `unlockScreenOrientation` | `() => Promise<void>` | Restores dynamic rotation |
 | `setDefaultScreenOrientation` | `() => Promise<void>` | Resets orientation to system default |
+| `setState` | `(state: Partial<ScreenOrientationState>) => void` | Directly updates orientation state |
 
 ### Hooks
 
-- `useDeviceInfoActions()`: Returns `[null, DeviceInfoActions]` for components that only dispatch actions without subscribing to re-renders.
+- `useDeviceInfo()`: Returns `[DeviceInfoState, DeviceInfoActions]` hook subscription.
+- `useDeviceInfoActions()`: Returns `[null, DeviceInfoActions]` for dispatching actions without subscribing to re-renders.
+- `useScreenOrientation()`: Returns `[ScreenOrientationState, ScreenOrientationActions]` hook subscription.
 - `useScreenOrientationActions()`: Returns `[null, ScreenOrientationActions]`.
-- `useScreenOrientationChangeListener()`: Sets up the native subscription listener for device rotation events.
+- `useScreenOrientationChangeListener()`: Sets up the native listener (`ScreenOrientation.addOrientationChangeListener`) and synchronizes state on device rotation.
+
+---
 
 ## License
 

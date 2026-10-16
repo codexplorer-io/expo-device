@@ -6,14 +6,26 @@ description: Instructions for using @codexporer.io/expo-device for OS identifica
 # `@codexporer.io/expo-device` Skill
 
 ## Overview
-`@codexporer.io/expo-device` handles device hardware inspection (phone vs tablet), OS detection helpers (`OS`), and orientation state hooks (`useScreenOrientation`) backed by `react-sweet-state`.
+`@codexporer.io/expo-device` handles device hardware inspection (phone vs tablet), platform OS detection helpers (`OS`), and screen orientation management hooks backed by `react-sweet-state`.
+
+---
+
+## Peer Dependencies
+
+All peer dependencies must be installed in consuming projects:
+- `react`: `*`
+- `react-native`: `*`
+- `expo-device`: `*`
+- `expo-screen-orientation`: `*`
+- `react-sweet-state`: `*`
 
 ---
 
 ## When to Use
 - Differentiating between phone and tablet layouts (e.g. 2-column vs 4-column photo grids).
-- Checking platform specific behavior (`OS.isIOS()`, `OS.isAndroid()`).
-- Listening for screen orientation changes to adapt canvas sizes.
+- Checking platform-specific behavior (`OS.isIOS()`, `OS.isAndroid()`, `OS.version()`).
+- Listening for screen orientation changes to adapt layouts and canvas views.
+- Locking/unlocking screen rotation programmatically.
 
 ---
 
@@ -69,31 +81,56 @@ export function ResponsiveLayout() {
 ## API Reference
 
 ### `OS` Helper
+Object providing platform detection methods:
+
 | Method | Return | Description |
 | :--- | :--- | :--- |
-| `OS.isIOS()` | `boolean` | `true` if iOS |
-| `OS.isAndroid()` | `boolean` | `true` if Android |
-| `OS.version()` | `string \| number` | OS version string/number |
+| `OS.isIOS()` | `boolean` | `true` if iOS platform |
+| `OS.isAndroid()` | `boolean` | `true` if Android platform |
+| `OS.version()` | `string \| number` | OS version identifier (`Platform.Version`) |
 
 ### `useDeviceInfo()`
 Returns `[DeviceInfoState, DeviceInfoActions]`.
 
+#### `DeviceInfoState`
 | Property | Type | Description |
 | :--- | :--- | :--- |
 | `isPhone` | `boolean \| undefined` | Phone form factor |
 | `isTablet` | `boolean \| undefined` | Tablet form factor |
 | `modelName` | `string \| null \| undefined` | Hardware model string |
 
+#### `DeviceInfoActions`
+| Action | Signature | Description |
+| :--- | :--- | :--- |
+| `initialize` | `() => Promise<void>` | Inspects hardware and populates device info |
+
 ### `useScreenOrientation()`
 Returns `[ScreenOrientationState, ScreenOrientationActions]`.
 
+#### `ScreenOrientationState`
 | Property | Type | Description |
 | :--- | :--- | :--- |
 | `isLandscape` | `boolean \| undefined` | Landscape orientation flag |
-| `screenOrientation` | `ScreenOrientation.Orientation` | Expo Orientation enum |
+| `screenOrientation` | `ScreenOrientation.Orientation \| undefined` | Active Expo Orientation enum value |
+
+#### `ScreenOrientationActions`
+| Action | Signature | Description |
+| :--- | :--- | :--- |
+| `initialize` | `(options?: { setDefaultScreenOrientation?: Promise<void> }) => Promise<void>` | Initializes orientation store and reads current orientation |
+| `lockScreenOrientation` | `(options?: { orientationLock?: ScreenOrientation.OrientationLock }) => Promise<void>` | Locks device to specified orientation lock |
+| `unlockScreenOrientation` | `() => Promise<void>` | Restores dynamic rotation |
+| `setDefaultScreenOrientation` | `() => Promise<void>` | Resets orientation to system default |
+| `setState` | `(state: Partial<ScreenOrientationState>) => void` | Directly updates orientation state |
+
+### Additional Exported Hooks
+- `useDeviceInfoActions()`: Returns `[null, DeviceInfoActions]` for dispatching without re-rendering.
+- `useScreenOrientationActions()`: Returns `[null, ScreenOrientationActions]`.
+- `useScreenOrientationChangeListener()`: Attaches `ScreenOrientation.addOrientationChangeListener` to synchronize orientation changes.
 
 ---
 
 ## Critical Rules & Guidelines
-1. **Initialize at Boot**: Call `await initialize()` during root bootstrap so `isTablet` and `isPhone` are available.
+1. **Initialize at Boot**: Call `await initialize()` during root bootstrap so `isTablet`, `isPhone`, and `modelName` are available.
 2. **Mount Orientation Listener**: Mount `useScreenOrientationChangeListener()` once in the root app to automatically sync orientation updates.
+3. **`OS` Helper are Functions**: Always call `OS.isIOS()` and `OS.isAndroid()` as functions, not boolean properties.
+4. **Orientation State Fields**: State only provides `isLandscape` and `screenOrientation`. For portrait, check `!isLandscape`.
